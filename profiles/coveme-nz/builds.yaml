@@ -1,0 +1,49 @@
+
+# coVEME 2021
+
+inputs:
+    # this data was obtained from the GISAID web portal (epicov) restricting samples
+    # to Oceania / New Zealand, with sampling times 2021-06-01 until present (n=586)
+  - name: "mydata" 
+    metadata: "data/aus_nz/nz.metadata.tsv"
+    sequences: "data/aus_nz/nz.sequences.fasta"
+  - name: "aus" 
+    metadata: "data/aus_nz/aus.metadata.tsv"
+    sequences: "data/aus_nz/aus.sequences.fasta"
+  - name: "oceania"
+    # see https://docs.nextstrain.org/projects/ncov/en/latest/reference/remote_inputs.html
+    metadata: "https://data.nextstrain.org/files/ncov/open/oceania/metadata.tsv.xz"
+    aligned: "https://data.nextstrain.org/files/ncov/open/oceania/aligned.fasta.xz"
+  - name: "reference"
+    metadata: "data/references_metadata.tsv"
+    sequences: "data/references_sequences.fasta"
+
+builds:
+  coveme-nz:
+    subsampling_scheme: coveme-scheme # use a custom subsampling scheme defined below
+
+subsampling:
+  coveme-scheme:
+    allOfMyData:
+      exclude: "--exclude-where 'mydata!=yes'" # subset to sequences from input `mydata`
+    aus-context:
+      exclude: "--exclude-where 'mydata=yes'" # i.e. subset to sequences _not_ from input `mydata`
+      max_sequences: 700
+      priorities:
+        type: "proximity"
+        focus: "allOfMyData"
+    regional-background:
+      exclude: "--exclude-where 'mydata=yes'"
+      group_by: year month region
+      max_sequences: 300
+
+files:
+  auspice_config: "my_profiles/coveme-nz/my_auspice_config.json"
+  description: "my_profiles/coveme-nz/my_description.md"
+
+skip_travel_history_adjustment: True
+
+traits:
+  multiple-inputs:
+    sampling_bias_correction: 2.5
+    columns: ["country"]

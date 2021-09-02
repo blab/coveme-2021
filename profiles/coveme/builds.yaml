@@ -1,0 +1,46 @@
+
+# coVEME 2021
+
+inputs:
+  - name: "mydata" 
+    # this data was obtained from the GISAID web portal (epicov) resticting samples
+    # to South America / Brazil / Minas Gerais
+    metadata: "data/gisaid_auspice_input_hcov-19_2021_09_01_23/1630539433350.metadata.tsv"
+    sequences: "data/gisaid_auspice_input_hcov-19_2021_09_01_23/1630539433350.sequences.fasta"
+  - name: "southamerica"
+    # see https://docs.nextstrain.org/projects/ncov/en/latest/reference/remote_inputs.html
+    metadata: "https://data.nextstrain.org/files/ncov/open/south-america/metadata.tsv.xz"
+    aligned: "https://data.nextstrain.org/files/ncov/open/south-america/aligned.fasta.xz"
+  - name: "reference"
+    metadata: "data/references_metadata.tsv"
+    sequences: "data/references_sequences.fasta"
+
+builds:
+  coveme:
+    subsampling_scheme: coveme-scheme # use a custom subsampling scheme defined below
+
+subsampling:
+  coveme-scheme:
+    allOfMyData:
+      exclude: "--exclude-where 'mydata!=yes'" # subset to sequences from input `mydata`
+    south-america-context:
+      exclude: "--exclude-where 'mydata=yes'" # i.e. subset to sequences _not_ from input `mydata`
+      max_sequences: 500
+      priorities:
+        type: "proximity"
+        focus: "allOfMyData"
+    south-america-background:
+      exclude: "--exclude-where 'mydata=yes'"
+      group_by: year month country
+      max_sequences: 200
+
+files:
+  auspice_config: "my_profiles/coveme/my_auspice_config.json"
+  description: "my_profiles/coveme/my_description.md"
+
+skip_travel_history_adjustment: True
+
+traits:
+  multiple-inputs:
+    sampling_bias_correction: 2.5
+    columns: ["country"]
