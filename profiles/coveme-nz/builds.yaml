@@ -7,6 +7,8 @@ inputs:
   - name: "mydata" 
     metadata: "data/aus_nz/nz.metadata.tsv"
     sequences: "data/aus_nz/nz.sequences.fasta"
+    # this data was obtained from the GISAID web portal (epicov) restricting samples
+    # to Oceania / Australia, with sampling times 2021-07-01 until present
   - name: "aus" 
     metadata: "data/aus_nz/aus.metadata.tsv"
     sequences: "data/aus_nz/aus.sequences.fasta"
